@@ -11,6 +11,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import com.moniquetrevisan.urlshortening.jsonobject.Stat;
+
 @Path("/users")
 @ManagedBean
 public class UserRs {
@@ -26,8 +28,9 @@ public class UserRs {
 	}
 	
 	@GET
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/itworks")
-	public String justHi() {
-		return "it works!";
+	public Stat justHi() {
+		return new Stat(1, 0, "http://localhost:8080/urlshortening/longurl", "http://localhost:8080/urlshortening/itworks");
 	}
 }
