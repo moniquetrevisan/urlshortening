@@ -8,6 +8,11 @@
 	<name>url shortening</name>
 
 	<dependencies>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.1.0</version>
+		</dependency>
 		<!-- RestFul -->
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
@@ -29,7 +34,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>joe</finalName>
+		<finalName>urhshortening</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
