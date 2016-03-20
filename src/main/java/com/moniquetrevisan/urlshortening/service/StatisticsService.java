@@ -1,22 +1,29 @@
 package com.moniquetrevisan.urlshortening.service;
 
-import java.util.logging.Logger;
+import org.codehaus.jettison.json.JSONObject;
 
-import com.moniquetrevisan.urlshortening.jsonobject.Stat;
 import com.moniquetrevisan.urlshortening.persistence.StatisticsPersistence;
 
 public class StatisticsService {
 	
-	private static Logger LOGGER = Logger.getLogger(StatisticsService.class.getName());
-	
 	private StatisticsPersistence statisticsPersistence;
 	
-	public StatisticsService() throws Exception{
+	public StatisticsService() {
 		this.statisticsPersistence = new StatisticsPersistence();
 	}
 	
-	public Stat getGlobalStatistics(){
-		return null;
+	public JSONObject getGlobalStatistics(){
+		JSONObject jsonResponse = new JSONObject(); 
+		jsonResponse = statisticsPersistence.getTotalOfHitsAndUrlCount(jsonResponse, null);
+		jsonResponse = statisticsPersistence.getTopUrls(jsonResponse, null);
+		return jsonResponse;
 	}
 
+	public JSONObject getUserStatistics(String userId){
+		JSONObject jsonResponse = new JSONObject(); 
+		jsonResponse = statisticsPersistence.getTotalOfHitsAndUrlCount(jsonResponse, userId);
+		jsonResponse = statisticsPersistence.getTopUrls(jsonResponse, userId);
+		return jsonResponse;
+	}
+	
 }

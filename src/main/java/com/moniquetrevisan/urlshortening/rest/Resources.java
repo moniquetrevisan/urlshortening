@@ -25,6 +25,7 @@ import org.codehaus.jettison.json.JSONObject;
 
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.moniquetrevisan.urlshortening.jsonobject.Stat;
 import com.moniquetrevisan.urlshortening.jsonobject.User;
 import com.moniquetrevisan.urlshortening.service.StatisticsService;
@@ -98,7 +99,8 @@ public class Resources {
 			String url = jsonObject.getString("url");
 			Stat stat = urlService.createUrl(userId, url);
 			if (stat.getId() != -1) {
-				String jsonResponse = new Gson().toJson(stat);
+				Gson gson = new GsonBuilder().setPrettyPrinting().create();
+				String jsonResponse = gson.toJson(stat);
 				return Response.status(HttpServletResponse.SC_CREATED).entity(jsonResponse).type(MediaType.APPLICATION_JSON).build();
 			} else {
 				return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON).build();
@@ -113,8 +115,11 @@ public class Resources {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/stats")
 	public Response getGlobalStatistics() {
-		//TODO
-		return null;
+		JSONObject json = statisticsService.getGlobalStatistics();
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String jsonResponse = gson.toJson(json);
+		
+		return Response.status(HttpServletResponse.SC_OK).entity(jsonResponse).type(MediaType.APPLICATION_JSON).build();
 	}
 
 	/**
@@ -126,9 +131,12 @@ public class Resources {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/users/{userId}/stats")
-	public Response getUserStatistics(@PathParam("userId") String userid) {
-		// TODO getUserStatistics
-		return null;
+	public Response getUserStatistics(@PathParam("userId") String userId) {
+		JSONObject json = statisticsService.getUserStatistics(userId);
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String jsonResponse = gson.toJson(json);
+		
+		return Response.status(HttpServletResponse.SC_OK).entity(jsonResponse).type(MediaType.APPLICATION_JSON).build();
 	}
 
 	/**
@@ -143,7 +151,8 @@ public class Resources {
 	public Response getUrlStatistics(@PathParam("id") int urlId) {
 		Stat stat = urlService.getOriginalUrl(urlId);
 		if(null != stat){
-			String jsonResponse = new Gson().toJson(stat);
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			String jsonResponse = gson.toJson(stat);
 			return Response.ok(jsonResponse).type(MediaType.APPLICATION_JSON).build();
 		}
 		return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON).build();
@@ -177,7 +186,8 @@ public class Resources {
 			String userId = jsonObject.getString("id");
 			User user = userService.createUser(userId);
 			if (!Strings.isNullOrEmpty(user.getId())) {
-				String jsonResponse = new Gson().toJson(user);
+				Gson gson = new GsonBuilder().setPrettyPrinting().create();
+				String jsonResponse = gson.toJson(user);
 				return Response.status(HttpServletResponse.SC_CREATED).entity(jsonResponse).type(MediaType.APPLICATION_JSON).build();
 			} else {
 				return Response.status(HttpServletResponse.SC_CONFLICT).type(MediaType.APPLICATION_JSON).build();

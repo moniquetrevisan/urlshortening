@@ -21,6 +21,6 @@ public class User {
 
 	@Override
 	public String toString() {
-		return new StringBuffer("[User: ").append("id: ").append(this.id).append(" ]").toString();
+		return new StringBuffer("User: ").append("id:").append(this.id).append("").toString();
 	}
 }

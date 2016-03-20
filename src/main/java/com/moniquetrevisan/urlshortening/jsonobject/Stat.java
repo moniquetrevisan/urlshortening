@@ -51,12 +51,12 @@ public class Stat {
 	
 	@Override
 	public String toString() {
-		return new StringBuffer("[Stat: ")
-				.append("id: ").append(this.id)
-				.append("hits: ").append(this.hits)
-				.append("url: ").append(this.url)
-				.append("shortUrl: ").append(this.shortUrl)
-				.append(" ]")
+		return new StringBuffer("")
+				.append(" id:").append(this.id)
+				.append(" hits:").append(this.hits)
+				.append(" url:").append(this.url)
+				.append(" shortUrl:").append(this.shortUrl)
+				.append("")
 				.toString();
 	}
 
