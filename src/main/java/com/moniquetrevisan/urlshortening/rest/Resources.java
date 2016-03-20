@@ -1,10 +1,14 @@
 package com.moniquetrevisan.urlshortening.rest;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.ManagedBean;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -14,14 +18,26 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.moniquetrevisan.urlshortening.jsonobject.Stat;
 import com.moniquetrevisan.urlshortening.jsonobject.User;
+import com.moniquetrevisan.urlshortening.service.UserService;
 
 @Path("/resources")
 @ManagedBean
 public class Resources {
+	
+	private static Logger LOGGER = Logger.getLogger(Resources.class.getName());
+	
+	private UserService userService;
+	
+	public Resources() throws Exception {
+		this.userService = new UserService();
+	}
 	
 	@GET
 	@Path("/urls/{id}")
@@ -31,10 +47,24 @@ public class Resources {
 
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/users/{userid}/urls")
-	public void createShortUrl(@PathParam("userid") String userid, @Context HttpServletRequest request, @Context HttpServletResponse response) {
-		String url = request.getParameter("url");
-		//TODO createShortUrl
+	public void createShortUrl(String json, @PathParam("userid") String userId, @Context HttpServletResponse response) {
+		/*try {
+			JSONObject jsonObject = new JSONObject(json);
+			String userId = jsonObject.getString("id");
+			User user = userService.createUser(userId);
+			if (!Strings.isNullOrEmpty(user.getId())) {
+				String jsonResponse = new Gson().toJson(user);
+				response.getWriter().write(jsonResponse);
+				response.setStatus(HttpServletResponse.SC_CREATED);
+			} else {
+				response.setStatus(HttpServletResponse.SC_CONFLICT);
+			}
+		} catch (IOException | JSONException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} 
+		return response;*/
 	}
 	
 	@GET
@@ -81,16 +111,13 @@ public class Resources {
 	}
 
 	@POST
-	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/users")
-	public HttpServletResponse createUser(@Context HttpServletRequest request, @Context HttpServletResponse response) {
-
+	public HttpServletResponse createUser(String json, @Context HttpServletResponse response) {
 		try {
-			String userId = request.getParameter("id");
-			// TODO chamar o servico que cria o usuário
-			// TODO ele vai retornar um usuário
-			User user = new User(userId);
-
+			JSONObject jsonObject = new JSONObject(json);
+			String userId = jsonObject.getString("id");
+			User user = userService.createUser(userId);
 			if (!Strings.isNullOrEmpty(user.getId())) {
 				String jsonResponse = new Gson().toJson(user);
 				response.getWriter().write(jsonResponse);
@@ -98,10 +125,9 @@ public class Resources {
 			} else {
 				response.setStatus(HttpServletResponse.SC_CONFLICT);
 			}
-		} catch (IOException e) {
-			// TODO colocar um log bonitinho
-			e.printStackTrace();
-		}
+		} catch (IOException | JSONException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} 
 		return response;
 	}
 
