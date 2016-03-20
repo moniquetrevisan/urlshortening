@@ -1,12 +1,9 @@
 package com.moniquetrevisan.urlshortening.rest;
 
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.ManagedBean;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -15,8 +12,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -41,15 +38,15 @@ public class Resources {
 	
 	@GET
 	@Path("/urls/{id}")
-	public HttpServletResponse redirectUrl(@PathParam("id") String urlId, @Context HttpServletResponse response) {
-		return response;
+	public Response redirectUrl(@PathParam("id") String urlId) {
+		return Response.ok().build();
 	}
 
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/users/{userid}/urls")
-	public void createShortUrl(String json, @PathParam("userid") String userId, @Context HttpServletResponse response) {
+	public void createShortUrl(String json, @PathParam("userid") String userId) {
 		/*try {
 			JSONObject jsonObject = new JSONObject(json);
 			String userId = jsonObject.getString("id");
@@ -70,7 +67,7 @@ public class Resources {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/stats")
-	public HttpServletResponse getGlobalStatistics(@Context HttpServletResponse response) {
+	public Response getGlobalStatistics() {
 		Stat stat = new Stat();
 		stat.setId(1);
 		stat.setHits(0);
@@ -78,29 +75,23 @@ public class Resources {
 		stat.setShortUrl("shorturl");
 		
 		String jsonResponse = new Gson().toJson(stat);
-		try {
-			response.getWriter().write(jsonResponse);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		response.setStatus(HttpServletResponse.SC_CREATED);
-		return response;
+		return Response.ok(jsonResponse).type(MediaType.APPLICATION_JSON).build();
 	}
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/users/{userId}/stats")
-	public HttpServletResponse getUserStatistics(@PathParam("userId") String userid, @Context HttpServletResponse response) {
+	public Response getUserStatistics(@PathParam("userId") String userid) {
 		// TODO getUserStatistics
-		return response;
+		return Response.ok().build();
 	}
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/stats/{id}")
-	public HttpServletResponse getUrlStatistics(@PathParam("id") String urlId, @Context HttpServletResponse response) {
+	public Response getUrlStatistics(@PathParam("id") String urlId) {
 		// TODO getUrlStatistics
-		return response;
+		return Response.ok().build();
 	}
 	
 	@DELETE
@@ -113,22 +104,21 @@ public class Resources {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/users")
-	public HttpServletResponse createUser(String json, @Context HttpServletResponse response) {
+	public Response createUser(String json) {
 		try {
 			JSONObject jsonObject = new JSONObject(json);
 			String userId = jsonObject.getString("id");
 			User user = userService.createUser(userId);
 			if (!Strings.isNullOrEmpty(user.getId())) {
 				String jsonResponse = new Gson().toJson(user);
-				response.getWriter().write(jsonResponse);
-				response.setStatus(HttpServletResponse.SC_CREATED);
+				return Response.status(HttpServletResponse.SC_CREATED).entity(jsonResponse).type(MediaType.APPLICATION_JSON).build();
 			} else {
-				response.setStatus(HttpServletResponse.SC_CONFLICT);
+				return Response.status(HttpServletResponse.SC_CONFLICT).type(MediaType.APPLICATION_JSON).build();
 			}
-		} catch (IOException | JSONException e) {
+		} catch (JSONException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} 
-		return response;
+		}
+		return null; 
 	}
 
 	@DELETE
