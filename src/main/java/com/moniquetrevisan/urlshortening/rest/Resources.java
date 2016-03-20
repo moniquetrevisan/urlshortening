@@ -49,6 +49,16 @@ public class Resources {
 		this.statisticsService = new StatisticsService();
 	}
 
+	/**
+	 * Redirect URL
+	 * EndPoint [/urls/{id}]
+	 * @param urlId
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws ServletException
+	 * @throws URISyntaxException
+	 */
 	@GET
 	@Path("/urls/{id}")
 	public Response redirectUrl(@PathParam("id") int urlId,  @Context HttpServletRequest request, @Context HttpServletResponse response) throws ServletException, URISyntaxException {
@@ -71,6 +81,13 @@ public class Resources {
 		return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON).build();
 	}
 
+	/**
+	 * Cadastra uma nova url no sistema
+	 * EndPoint [/users/{userid}/urls]
+	 * @param json
+	 * @param userId
+	 * @return
+	 */
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -96,30 +113,34 @@ public class Resources {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/stats")
 	public Response getGlobalStatistics() {
-		Stat stat = new Stat();
-		stat.setId(1);
-		stat.setHits(0);
-		stat.setUrl("longurl");
-		stat.setShortUrl("shorturl");
-
-		String jsonResponse = new Gson().toJson(stat);
-		return Response.ok(jsonResponse).type(MediaType.APPLICATION_JSON).build();
+		//TODO
+		return null;
 	}
 
+	/**
+	 * Retorna estatisticas das urls de um usuario
+	 * EndPoint [/users/{userId}/stats]
+	 * @param userid
+	 * @return
+	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/users/{userId}/stats")
 	public Response getUserStatistics(@PathParam("userId") String userid) {
 		// TODO getUserStatistics
-		return Response.ok().build();
+		return null;
 	}
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/stats/{id}")
-	public Response getUrlStatistics(@PathParam("id") String urlId) {
-		// TODO getUrlStatistics
-		return Response.ok().build();
+	public Response getUrlStatistics(@PathParam("id") int urlId) {
+		Stat stat = urlService.getOriginalUrl(urlId);
+		if(null != stat){
+			String jsonResponse = new Gson().toJson(stat);
+			return Response.ok(jsonResponse).type(MediaType.APPLICATION_JSON).build();
+		}
+		return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON).build();
 	}
 
 	@DELETE
