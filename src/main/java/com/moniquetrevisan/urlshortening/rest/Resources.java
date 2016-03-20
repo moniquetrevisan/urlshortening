@@ -22,6 +22,8 @@ import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.moniquetrevisan.urlshortening.jsonobject.Stat;
 import com.moniquetrevisan.urlshortening.jsonobject.User;
+import com.moniquetrevisan.urlshortening.service.StatisticsService;
+import com.moniquetrevisan.urlshortening.service.UrlService;
 import com.moniquetrevisan.urlshortening.service.UserService;
 
 @Path("/resources")
@@ -32,13 +34,23 @@ public class Resources {
 	
 	private UserService userService;
 	
+	private UrlService urlService;
+	
+	private StatisticsService statisticsService;
+	
 	public Resources() throws Exception {
 		this.userService = new UserService();
+		this.urlService = new UrlService(); 
+		this.statisticsService = new StatisticsService();
 	}
 	
 	@GET
 	@Path("/urls/{id}")
 	public Response redirectUrl(@PathParam("id") String urlId) {
+		//TODO 
+		// deve ir ao banco pegar a url
+		// atualiza hits
+		// faz o redirect
 		return Response.ok().build();
 	}
 
@@ -46,22 +58,21 @@ public class Resources {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/users/{userid}/urls")
-	public void createShortUrl(String json, @PathParam("userid") String userId) {
-		/*try {
+	public Response createShortUrl(String json, @PathParam("userid") String userId) {
+		try {
 			JSONObject jsonObject = new JSONObject(json);
-			String userId = jsonObject.getString("id");
-			User user = userService.createUser(userId);
-			if (!Strings.isNullOrEmpty(user.getId())) {
-				String jsonResponse = new Gson().toJson(user);
-				response.getWriter().write(jsonResponse);
-				response.setStatus(HttpServletResponse.SC_CREATED);
+			String url = jsonObject.getString("url");
+			Stat stat = urlService.createUrl(userId, url);
+			if (stat.getId() != -1) {
+				String jsonResponse = new Gson().toJson(stat);
+				return Response.status(HttpServletResponse.SC_CREATED).entity(jsonResponse).type(MediaType.APPLICATION_JSON).build();
 			} else {
-				response.setStatus(HttpServletResponse.SC_CONFLICT);
+				return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON).build();
 			}
-		} catch (IOException | JSONException e) {
+		} catch (JSONException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} 
-		return response;*/
+		}
+		return null; 
 	}
 	
 	@GET
@@ -102,6 +113,7 @@ public class Resources {
 	}
 
 	@POST
+	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/users")
 	public Response createUser(String json) {
