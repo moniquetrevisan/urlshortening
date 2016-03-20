@@ -16,16 +16,24 @@ public class UrlPersistence {
 
 	private Connection con = null;
 
-	public UrlPersistence() throws Exception {
-		createConnection();
+	public UrlPersistence() {
+		
 	}
 
-	private void createConnection() throws Exception {
+	private void createConnection() {
 		String url = "jdbc:hsqldb:hsql://localhost/urlshortening";
 		String user = "SA";
 		String password = "";
-		Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
-		con = DriverManager.getConnection(url, user, password);
+		try {
+			Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
+			con = DriverManager.getConnection(url, user, password);
+		} 
+		catch (InstantiationException 
+				| IllegalAccessException 
+				| ClassNotFoundException 
+				| SQLException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} 
 	}
 	
 	public boolean incrementHits(Stat stat){
@@ -39,14 +47,14 @@ public class UrlPersistence {
 			statement.setInt(2, stat.getId());
 			
 			statement.executeUpdate();
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			return false;
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				LOGGER.log(Level.WARNING, e.getMessage(), e);
 			}
 		}
 		return true;
@@ -58,6 +66,7 @@ public class UrlPersistence {
 					 + " where url_id = ?";
 		Stat stat = null;
 		try {
+			createConnection();
 			PreparedStatement statement = con.prepareStatement(query);
 			statement.setInt(1, urlId);
 			
@@ -87,6 +96,7 @@ public class UrlPersistence {
 	public int createUrl(Stat stat, String userId) {
 		int generatedKey = -1;
 		try {
+			createConnection();
 			String query = "insert into url (user_id_fk, hits, url, short_url ) values(?, ?, ?, ?)";
 			PreparedStatement statement = con.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
 			statement.setString(1, userId);

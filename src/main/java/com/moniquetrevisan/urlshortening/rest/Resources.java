@@ -175,7 +175,7 @@ public class Resources {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/user/{userId}")
 	public void deleteUser(@PathParam("userId") String userId) {
-		// TODO delete user
+		userService.deleteUser(userId);
 	}
 
 }
