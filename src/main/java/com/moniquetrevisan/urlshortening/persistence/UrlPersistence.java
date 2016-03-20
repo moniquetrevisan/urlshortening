@@ -3,6 +3,7 @@ package com.moniquetrevisan.urlshortening.persistence;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,6 +26,62 @@ public class UrlPersistence {
 		String password = "";
 		Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
 		con = DriverManager.getConnection(url, user, password);
+	}
+	
+	public boolean incrementHits(Stat stat){
+		String query = " update url "
+				 + " set hits = ? "
+				 + " where url_id = ?";
+		try {
+			createConnection();
+			PreparedStatement statement = con.prepareStatement(query);
+			statement.setInt(1, stat.getHits() + 1);
+			statement.setInt(2, stat.getId());
+			
+			statement.executeUpdate();
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			return false;
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			}
+		}
+		return true;
+	}
+	
+	public Stat getOriginalUrl(int urlId){
+		String query = " select url_id, user_id_fk, hits, url, short_url "
+					 + " from url "
+					 + " where url_id = ?";
+		Stat stat = null;
+		try {
+			PreparedStatement statement = con.prepareStatement(query);
+			statement.setInt(1, urlId);
+			
+			ResultSet rs = statement.executeQuery();
+			if(null != rs && rs.next()){
+				stat = new Stat();
+				stat.setId(urlId);
+				stat.setHits(rs.getInt("hits"));
+				stat.setUrl(rs.getString("url"));
+				stat.setShortUrl(rs.getString("short_url"));
+			} else{
+				return null;
+			}
+			return stat;
+		} catch (SQLException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			}
+		}
+		return null;
 	}
 
 	public int createUrl(Stat stat, String userId) {

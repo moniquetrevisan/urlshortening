@@ -1,9 +1,13 @@
 package com.moniquetrevisan.urlshortening.rest;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.ManagedBean;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -12,6 +16,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -29,29 +34,41 @@ import com.moniquetrevisan.urlshortening.service.UserService;
 @Path("/resources")
 @ManagedBean
 public class Resources {
-	
+
 	private static Logger LOGGER = Logger.getLogger(Resources.class.getName());
-	
+
 	private UserService userService;
-	
+
 	private UrlService urlService;
-	
+
 	private StatisticsService statisticsService;
-	
+
 	public Resources() throws Exception {
 		this.userService = new UserService();
-		this.urlService = new UrlService(); 
+		this.urlService = new UrlService();
 		this.statisticsService = new StatisticsService();
 	}
-	
+
 	@GET
 	@Path("/urls/{id}")
-	public Response redirectUrl(@PathParam("id") String urlId) {
-		//TODO 
-		// deve ir ao banco pegar a url
-		// atualiza hits
-		// faz o redirect
-		return Response.ok().build();
+	public Response redirectUrl(@PathParam("id") int urlId,  @Context HttpServletRequest request, @Context HttpServletResponse response) throws ServletException, URISyntaxException {
+		// recupera a url original para fazer o redirect
+		Stat stat = urlService.getOriginalUrl(urlId);
+
+		// se nao encontrou a url retornamos NotFound 404
+		if (null == stat) {
+			return Response.status(HttpServletResponse.SC_NOT_FOUND).type(MediaType.APPLICATION_JSON).build();
+		}
+
+		// incrementa o contador de audiencia
+		boolean isIncrementSuccessful = urlService.incrementHits(stat);
+		if (isIncrementSuccessful) {
+			// faz o redirect
+			URI uri = new URI(stat.getUrl());
+			return Response.status(HttpServletResponse.SC_MOVED_PERMANENTLY).location(uri).type(MediaType.APPLICATION_JSON).build();
+		}
+
+		return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON).build();
 	}
 
 	@POST
@@ -72,9 +89,9 @@ public class Resources {
 		} catch (JSONException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
-		return null; 
+		return null;
 	}
-	
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/stats")
@@ -84,11 +101,11 @@ public class Resources {
 		stat.setHits(0);
 		stat.setUrl("longurl");
 		stat.setShortUrl("shorturl");
-		
+
 		String jsonResponse = new Gson().toJson(stat);
 		return Response.ok(jsonResponse).type(MediaType.APPLICATION_JSON).build();
 	}
-	
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/users/{userId}/stats")
@@ -96,7 +113,7 @@ public class Resources {
 		// TODO getUserStatistics
 		return Response.ok().build();
 	}
-	
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/stats/{id}")
@@ -104,7 +121,7 @@ public class Resources {
 		// TODO getUrlStatistics
 		return Response.ok().build();
 	}
-	
+
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/urls/{id}")
@@ -130,7 +147,7 @@ public class Resources {
 		} catch (JSONException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
-		return null; 
+		return null;
 	}
 
 	@DELETE

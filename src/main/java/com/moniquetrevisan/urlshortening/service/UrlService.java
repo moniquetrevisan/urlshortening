@@ -20,13 +20,21 @@ public class UrlService {
 		this.urlPersistence = new UrlPersistence();
 	}
 
+	public Stat getOriginalUrl(int urlId) {
+		return urlPersistence.getOriginalUrl(urlId);
+	}
+	
+	public boolean incrementHits(Stat stat){
+		return urlPersistence.incrementHits(stat);
+	}
+
 	public Stat createUrl(String userId, String url) {
 		Stat stat = new Stat();
 		try {
 			stat.setHits(0);
 			stat.setUrl(url);
 			stat.setShortUrl(createShortUrl(url));
-			
+
 			int generatedKey = urlPersistence.createUrl(stat, userId);
 			stat.setId(generatedKey);
 		} catch (Exception ex) {
@@ -43,8 +51,8 @@ public class UrlService {
 		for (int i = 0; i < 10; i++) {
 			text[i] = url.charAt(rng.nextInt(url.length()));
 		}
-		String shortSufix = new String(text); 
-				
+		String shortSufix = new String(text);
+
 		return HOST + shortSufix;
 	}
 
