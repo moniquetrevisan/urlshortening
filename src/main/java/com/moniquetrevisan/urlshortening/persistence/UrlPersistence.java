@@ -95,9 +95,9 @@ public class UrlPersistence {
 
 	public int createUrl(Stat stat, String userId) {
 		int generatedKey = -1;
+		String query = "insert into url (user_id_fk, hits, url, short_url ) values(?, ?, ?, ?)";
 		try {
 			createConnection();
-			String query = "insert into url (user_id_fk, hits, url, short_url ) values(?, ?, ?, ?)";
 			PreparedStatement statement = con.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
 			statement.setString(1, userId);
 			statement.setInt(2, stat.getHits());
@@ -111,6 +111,26 @@ public class UrlPersistence {
 			return generatedKey;
 		} 
 		finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			}
+		}
+	}
+	
+	public boolean deleteUrl(int urlId) {
+		String deleteFromUrl = "delete from url where url_id = ? ";
+		try {
+			createConnection();
+			PreparedStatement statement = con.prepareStatement(deleteFromUrl);
+			statement.setInt(1, urlId);
+			statement.execute();
+			
+			return true;
+		} catch (SQLException e) {
+			return false;
+		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {

@@ -50,17 +50,17 @@ public class UserPersistence {
 		}
 	}
 	
-	public boolean deleteUser(User user) {
+	public boolean deleteUser(String userId) {
 		String deleteFromUrl = "delete from url where user_id_fk = ? ";
 		String deleteFromUser = "delete from user where user_id = ? ";
 		try {
 			createConnection();
 			PreparedStatement statement = con.prepareStatement(deleteFromUrl);
-			statement.setString(1, user.getId());
+			statement.setString(1, userId);
 			statement.execute();
 			
 			statement = con.prepareStatement(deleteFromUser);
-			statement.setString(1, user.getId());
+			statement.setString(1, userId);
 			statement.execute();
 			return true;
 		} catch (SQLException e) {

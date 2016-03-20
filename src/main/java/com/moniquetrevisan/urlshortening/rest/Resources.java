@@ -131,6 +131,12 @@ public class Resources {
 		return null;
 	}
 
+	/**
+	 * Retorna estatisticas de uma URL especifica
+	 * EndPoint [/stats/{id}]
+	 * @param urlId
+	 * @return
+	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/stats/{id}")
@@ -143,13 +149,24 @@ public class Resources {
 		return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON).build();
 	}
 
+	/**
+	 * Apaga uma URL do sistema (duh! =P )
+	 * EndPoint [/urls/{id}]
+	 * @param urlId
+	 */
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/urls/{id}")
-	public void deleteUrl(@PathParam("id") String urlId) {
-		// TODO delete url
+	public void deleteUrl(@PathParam("id") int urlId) {
+		urlService.deleteUrl(urlId);
 	}
 
+	/**
+	 * Cria um usuario
+	 * EndPoint [/users]
+	 * @param json
+	 * @return
+	 */
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -171,6 +188,11 @@ public class Resources {
 		return null;
 	}
 
+	/**
+	 * Apaga um usuario
+	 * EndPoint [/user/{userId}]
+	 * @param userId
+	 */
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/user/{userId}")

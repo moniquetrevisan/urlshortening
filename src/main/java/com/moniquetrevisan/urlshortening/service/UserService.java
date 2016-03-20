@@ -21,11 +21,9 @@ public class UserService {
 	}
 
 	public boolean deleteUser(String userId) {
-		User user = new User(userId);
-		if (userPersistence.deleteUser(user)) {
+		if (userPersistence.deleteUser(userId)) {
 			return true;
 		}
-		user.setId(null);
 		return false;
 	}
 

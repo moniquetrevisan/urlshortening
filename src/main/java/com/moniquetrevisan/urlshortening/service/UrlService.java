@@ -47,5 +47,12 @@ public class UrlService {
 
 		return HOST + shortSufix;
 	}
+	
+	public boolean deleteUrl(int urlId) {
+		if (urlPersistence.deleteUrl(urlId)) {
+			return true;
+		}
+		return false;
+	}
 
 }
