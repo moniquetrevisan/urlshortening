@@ -1,4 +1,4 @@
 #!/bin/sh
 
 #install.sh
-cp /usr/local/urlshortening/urlshortening.war /usr/lib/tomcat/webapps/.
+cp /usr/local/urlshortening/target/urlshortening.war /usr/lib/tomcat/webapps/.
