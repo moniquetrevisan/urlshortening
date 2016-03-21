@@ -60,8 +60,6 @@
     <build>
         <finalName>urlshortening</finalName>
         <plugins>
-            <!-- <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>tomcat-maven-plugin</artifactId> <configuration> <url>http://localhost:8080/manager/html</url> <server>TomcatServer</server> <path>/</path> 
-                </configuration> </plugin> -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
